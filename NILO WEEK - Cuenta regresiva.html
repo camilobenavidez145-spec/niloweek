@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NILO WEEK - Cuenta regresiva</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky1: #fbf3e4;
+    --sky2: #f3dcb4;
+    --forest: #2f4a3a;
+    --moss: #6b8f5e;
+    --clay: #c8703f;
+    --ink: #33281e;
+    --muted: #7a6a58;
+    --card: rgba(255, 252, 245, 0.75);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Nunito', 'Segoe UI', Roboto, Arial, sans-serif;
+    color: var(--ink);
+    background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+    padding: 24px 16px;
+  }
+  .wrap {
+    width: 100%;
+    max-width: 960px;
+    text-align: center;
+  }
+  h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 800;
+    font-size: clamp(2.4rem, 8vw, 5rem);
+    letter-spacing: 0.02em;
+    color: var(--forest);
+    line-height: 1.05;
+    margin-bottom: 10px;
+  }
+  .subtitle {
+    font-size: clamp(0.95rem, 2.2vw, 1.1rem);
+    color: var(--muted);
+    margin-bottom: clamp(26px, 6vw, 48px);
+  }
+  .counter {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(10px, 2vw, 22px);
+  }
+  .unit {
+    background: var(--card);
+    border: 1px solid rgba(47, 74, 58, 0.15);
+    border-radius: 22px;
+    padding: clamp(16px, 3vw, 28px) 6px;
+    box-shadow: 0 8px 24px rgba(88, 62, 30, 0.10);
+    perspective: 600px;
+  }
+  .num {
+    display: block;
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(2.2rem, 9vw, 5rem);
+    line-height: 1;
+    color: var(--forest);
+    font-variant-numeric: tabular-nums;
+    transform-origin: 50% 50%;
+  }
+  .num.flip {
+    animation: fadeIn 0.5s ease-out;
+  }
+  @keyframes fadeIn {
+    0%   { opacity: 0; transform: translateY(-8px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  .label {
+    display: block;
+    margin-top: 10px;
+    font-size: clamp(0.7rem, 1.8vw, 0.85rem);
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--clay);
+  }
+  .target {
+    margin-top: clamp(28px, 6vw, 48px);
+    font-size: clamp(0.9rem, 2vw, 1.05rem);
+    color: var(--muted);
+  }
+  .target strong { color: var(--clay); font-weight: 700; }
+  .done {
+    display: none;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(1.5rem, 5vw, 2.6rem);
+    font-weight: 800;
+    color: var(--clay);
+    margin-top: 24px;
+  }
+  .is-done .counter { display: none; }
+  .is-done .done { display: block; }
+
+  @media (max-width: 600px) {
+    .counter { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .unit { border-radius: 18px; }
+  }
+  @media (max-width: 340px) {
+    .num { font-size: 1.8rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .num.flip { animation: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap" id="root">
+    <h1>NILO WEEK</h1>
+    <p class="subtitle">Cuenta regresiva</p>
+
+    <div class="counter">
+      <div class="unit"><span class="num" id="days">00</span><span class="label">Días</span></div>
+      <div class="unit"><span class="num" id="hours">00</span><span class="label">Horas</span></div>
+      <div class="unit"><span class="num" id="minutes">00</span><span class="label">Minutos</span></div>
+      <div class="unit"><span class="num" id="seconds">00</span><span class="label">Segundos</span></div>
+    </div>
+
+    <p class="target">Faltan para el <strong>26 de diciembre de 2026</strong></p>
+    <p class="done">¡NILO WEEK ha comenzado!</p>
+  </div>
+
+<script>
+  const target = new Date(2026, 11, 26, 0, 0, 0);
+  const els = {
+    days: document.getElementById('days'),
+    hours: document.getElementById('hours'),
+    minutes: document.getElementById('minutes'),
+    seconds: document.getElementById('seconds')
+  };
+  const root = document.getElementById('root');
+  const last = {};
+
+  function setValue(key, value) {
+    const text = String(value).padStart(2, '0');
+    if (last[key] === text) return;
+    last[key] = text;
+    const el = els[key];
+    el.textContent = text;
+    el.classList.remove('flip');
+    void el.offsetWidth;
+    el.classList.add('flip');
+  }
+
+  function update() {
+    const diff = target - new Date();
+    if (diff <= 0) {
+      root.classList.add('is-done');
+      clearInterval(timer);
+      return;
+    }
+    const totalSeconds = Math.floor(diff / 1000);
+    setValue('days', Math.floor(totalSeconds / 86400));
+    setValue('hours', Math.floor((totalSeconds % 86400) / 3600));
+    setValue('minutes', Math.floor((totalSeconds % 3600) / 60));
+    setValue('seconds', totalSeconds % 60);
+  }
+
+  update();
+  const timer = setInterval(update, 1000);
+</script>
+</body>
+</html>
